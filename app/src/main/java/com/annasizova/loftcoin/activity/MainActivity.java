@@ -1,8 +1,10 @@
-package com.annasizova.loftcoin;
+package com.annasizova.loftcoin.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.annasizova.loftcoin.R;
 
 public class MainActivity extends AppCompatActivity {
 
