@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.annasizova.loftcoin.R;
 import com.annasizova.loftcoin.adapter.WelcomeAdapter;
 
+import ru.tinkoff.scrollingpagerindicator.ScrollingPagerIndicator;
+
 public class WelcomeActivity extends AppCompatActivity {
 
     TextView tvStart;
@@ -29,6 +31,10 @@ public class WelcomeActivity extends AppCompatActivity {
         welcomeRecyclerView.setAdapter(new WelcomeAdapter());
         welcomeRecyclerView.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.HORIZONTAL, false));
+        ScrollingPagerIndicator recyclerIndicator = findViewById(R.id.indicator);
+        recyclerIndicator.attachToRecyclerView(welcomeRecyclerView);
+        recyclerIndicator.setDotColor(getResources().getColor(R.color.grey_blue));
+        recyclerIndicator.setSelectedDotColor(getResources().getColor(R.color.white));
         new PagerSnapHelper().attachToRecyclerView(welcomeRecyclerView);
 
         tvStart = findViewById(R.id.tv_start);
