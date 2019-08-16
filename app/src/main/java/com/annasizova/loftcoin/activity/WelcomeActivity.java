@@ -39,15 +39,12 @@ public class WelcomeActivity extends AppCompatActivity {
         new PagerSnapHelper().attachToRecyclerView(welcomeRecyclerView);
 
         tvStart = findViewById(R.id.tv_start);
-        tvStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Settings settings = Settings.of(WelcomeActivity.this);
-                settings.doNotShowWelcomeScreen();
-                final Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            }
+        tvStart.setOnClickListener(v -> {
+            final Settings settings = Settings.of(WelcomeActivity.this);
+            settings.doNotShowWelcomeScreen();
+            final Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         });
     }
 }
