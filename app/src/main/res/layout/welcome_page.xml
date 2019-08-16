@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingStart="45dp"
+    android:paddingEnd="45dp">
+
+    <ImageView
+        android:id="@+id/welcome_image"
+        android:layout_width="168dp"
+        android:layout_height="168dp"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/welcome_page_1" />
+
+    <TextView
+        android:id="@+id/welcome_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:textAppearance="?attr/textAppearanceHeadline2"
+        android:textColor="@android:color/white"
+        tools:text="@string/welcome_page_1_title" />
+
+    <TextView
+        android:id="@+id/welcome_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:gravity="center"
+        android:lines="3"
+        android:textAppearance="?attr/textAppearanceHeadline4"
+        android:textColor="@color/blue_grey"
+        tools:text="@string/welcome_page_1_subtitle" />
+
+</LinearLayout>
