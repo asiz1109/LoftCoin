@@ -1,4 +1,4 @@
-package com.annasizova.loftcoin.vm;
+package com.annasizova.loftcoin.main;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;

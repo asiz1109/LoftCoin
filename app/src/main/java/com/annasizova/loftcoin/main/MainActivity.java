@@ -1,4 +1,4 @@
-package com.annasizova.loftcoin.activity;
+package com.annasizova.loftcoin.main;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.collection.SparseArrayCompat;
@@ -8,11 +8,10 @@ import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 
 import com.annasizova.loftcoin.R;
-import com.annasizova.loftcoin.fragment.ConverterFragment;
-import com.annasizova.loftcoin.fragment.RateFragment;
-import com.annasizova.loftcoin.fragment.WalletsFragment;
+import com.annasizova.loftcoin.converter.ConverterFragment;
+import com.annasizova.loftcoin.rate.RateFragment;
+import com.annasizova.loftcoin.wallets.WalletsFragment;
 import com.annasizova.loftcoin.util.Supplier;
-import com.annasizova.loftcoin.vm.MainViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Objects;

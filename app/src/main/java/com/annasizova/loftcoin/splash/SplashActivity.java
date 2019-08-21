@@ -1,4 +1,4 @@
-package com.annasizova.loftcoin.activity;
+package com.annasizova.loftcoin.splash;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,7 +7,9 @@ import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.annasizova.loftcoin.R;
+import com.annasizova.loftcoin.main.MainActivity;
 import com.annasizova.loftcoin.util.Settings;
+import com.annasizova.loftcoin.welcome.WelcomeActivity;
 
 public class SplashActivity extends AppCompatActivity {
 
