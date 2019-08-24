@@ -1,0 +1,87 @@
+package com.annasizova.loftcoin.rate;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.annasizova.loftcoin.R;
+import com.annasizova.loftcoin.main.MainViewModel;
+import com.google.android.material.snackbar.Snackbar;
+
+public class RateFragment extends Fragment {
+
+    private MainViewModel mainViewModel;
+    private RateViewModel rateViewModel;
+    private RateAdapter rateAdapter;
+    private RecyclerView recyclerView;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mainViewModel = ViewModelProviders.of(requireActivity()).get(MainViewModel.class);
+        rateViewModel = ViewModelProviders.of(this, new RateViewModel.Factory(requireContext())).get(RateViewModel.class);
+        rateAdapter = new RateAdapter();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_rate, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mainViewModel.submitTitle(getString(R.string.rate));
+        recyclerView = view.findViewById(R.id.rate_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.swapAdapter(rateAdapter, false);
+        recyclerView.setHasFixedSize(true);
+        final SwipeRefreshLayout refreshLayout = view.findViewById(R.id.rate_refresh);
+        refreshLayout.setOnRefreshListener(rateViewModel::refresh);
+        rateViewModel.error().observe(this, error ->
+                Snackbar.make(view, error.getMessage(), Snackbar.LENGTH_SHORT).show());
+        rateViewModel.dataSet().observe(this, rateAdapter::submitList);
+        rateViewModel.loading().observe(this, refreshLayout::setRefreshing);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.rate_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_change_currency) {
+                final CurrencyDialog currencyDialog = new CurrencyDialog();
+                currencyDialog.show(getChildFragmentManager(), CurrencyDialog.TAG);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        recyclerView.swapAdapter(null, false);
+    }
+}

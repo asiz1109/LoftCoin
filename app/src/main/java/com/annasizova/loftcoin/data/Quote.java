@@ -9,4 +9,12 @@ public class Quote {
 
     @SerializedName("percent_change_24h")
     double change24h;
+
+    public double getPrice() {
+        return price;
+    }
+
+    public double getChange24h() {
+        return change24h;
+    }
 }

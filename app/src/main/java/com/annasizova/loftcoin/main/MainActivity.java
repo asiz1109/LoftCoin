@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle(title));
 
         mainViewModel.selectedId().observe(this, this::replaceFragment);
+        mainViewModel.selectedId().observe(this, bottomNavigationView::setSelectedItemId);
     }
 
     private void replaceFragment(int itemId) {

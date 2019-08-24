@@ -15,5 +15,6 @@
     <string name="converter">Конвертер</string>
 
     <string name="add">Добавить</string>
+    <string name="change_currency">Сменить валюту</string>
 
 </resources>
