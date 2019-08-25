@@ -1,4 +1,4 @@
-package com.annasizova.loftcoin.adapter;
+package com.annasizova.loftcoin.welcome;
 
 import android.view.LayoutInflater;
 import android.view.View;

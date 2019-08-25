@@ -1,10 +1,7 @@
-package com.annasizova.loftcoin.activity;
+package com.annasizova.loftcoin.welcome;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -14,7 +11,7 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.annasizova.loftcoin.R;
-import com.annasizova.loftcoin.adapter.WelcomeAdapter;
+import com.annasizova.loftcoin.main.MainActivity;
 import com.annasizova.loftcoin.util.Settings;
 
 import ru.tinkoff.scrollingpagerindicator.ScrollingPagerIndicator;
