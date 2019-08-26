@@ -1,25 +1,27 @@
 package com.annasizova.loftcoin.util;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
-import androidx.core.os.ConfigurationCompat;
-import androidx.core.os.LocaleListCompat;
 
 import java.util.Locale;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+
+import dagger.Reusable;
+
+@Reusable
 public class ChangeFormatImpl implements ChangeFormat {
 
-    private final Locale locale;
+    private final Provider<Locale> locale;
 
-    public ChangeFormatImpl(@NonNull Context context) {
-        final LocaleListCompat locales = ConfigurationCompat.getLocales(context.getResources().getConfiguration());
-        locale = locales.get(0);
+    @Inject
+    ChangeFormatImpl(Provider<Locale> locale) {
+        this.locale = locale;
     }
 
     @NonNull
     @Override
     public String format(double value) {
-        return String.format(locale, "%.4f%%", value);
+        return String.format(locale.get(), "%.4f%%", value);
     }
 }

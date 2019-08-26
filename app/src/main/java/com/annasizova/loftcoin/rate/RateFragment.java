@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,19 +21,25 @@ import com.annasizova.loftcoin.R;
 import com.annasizova.loftcoin.main.MainViewModel;
 import com.google.android.material.snackbar.Snackbar;
 
+import javax.inject.Inject;
+
+import dagger.Lazy;
+
 public class RateFragment extends Fragment {
 
-    private MainViewModel mainViewModel;
-    private RateViewModel rateViewModel;
-    private RateAdapter rateAdapter;
+    @Inject ViewModelProvider.Factory vmFactory;
+    @Inject RateAdapter rateAdapter;
     private RecyclerView recyclerView;
+    private RateViewModel rateViewModel;
+    private MainViewModel mainViewModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mainViewModel = ViewModelProviders.of(requireActivity()).get(MainViewModel.class);
-        rateViewModel = ViewModelProviders.of(this, new RateViewModel.Factory(requireContext())).get(RateViewModel.class);
-        rateAdapter = new RateAdapter();
+
+        DaggerRateComponent.builder().fragment(this).build().inject(this);
+        rateViewModel = ViewModelProviders.of(this, vmFactory).get(RateViewModel.class);
+        mainViewModel = ViewModelProviders.of(requireActivity(), vmFactory).get(MainViewModel.class);
     }
 
     @Nullable
@@ -44,13 +51,17 @@ public class RateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         mainViewModel.submitTitle(getString(R.string.rate));
+
         recyclerView = view.findViewById(R.id.rate_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.swapAdapter(rateAdapter, false);
         recyclerView.setHasFixedSize(true);
+
         final SwipeRefreshLayout refreshLayout = view.findViewById(R.id.rate_refresh);
         refreshLayout.setOnRefreshListener(rateViewModel::refresh);
+
         rateViewModel.error().observe(this, error ->
                 Snackbar.make(view, error.getMessage(), Snackbar.LENGTH_SHORT).show());
         rateViewModel.dataSet().observe(this, rateAdapter::submitList);
