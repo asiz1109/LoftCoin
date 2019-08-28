@@ -6,7 +6,16 @@ import com.annasizova.loftcoin.BuildConfig;
 
 import java.util.Locale;
 
+import javax.inject.Inject;
+
+import dagger.Reusable;
+
+@Reusable
 public class ImgUrlFormatImpl implements ImgUrlFormat {
+
+    @Inject
+    ImgUrlFormatImpl() {
+    }
 
     @NonNull
     @Override

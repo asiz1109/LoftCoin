@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -20,10 +21,13 @@ import com.squareup.picasso.Picasso;
 
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 public class RateAdapter extends ListAdapter <CoinRate, RateAdapter.ViewHolder> {
 
     private LayoutInflater inflater;
 
+    @Inject
     RateAdapter() {
         super(new DiffUtil.ItemCallback<CoinRate>() {
             @Override
@@ -34,6 +38,12 @@ public class RateAdapter extends ListAdapter <CoinRate, RateAdapter.ViewHolder> 
             @Override
             public boolean areContentsTheSame(@NonNull CoinRate oldItem, @NonNull CoinRate newItem) {
                 return Objects.equals(oldItem, newItem);
+            }
+
+            @Nullable
+            @Override
+            public Object getChangePayload(@NonNull CoinRate oldItem, @NonNull CoinRate newItem) {
+                return newItem;
             }
         });
         setHasStableIds(true);

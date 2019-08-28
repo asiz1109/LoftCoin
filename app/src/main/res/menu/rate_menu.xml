@@ -4,6 +4,6 @@
     <item
         android:id="@+id/menu_change_currency"
         android:icon="@drawable/ic_money_24dp"
-        android:title="@string/change_currency"
+        android:title="@string/choose_currency"
         app:showAsAction="always" />
 </menu>

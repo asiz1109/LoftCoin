@@ -9,12 +9,14 @@ import com.annasizova.loftcoin.R;
 
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 public class MainViewModel extends ViewModel {
 
     private final MutableLiveData <String> selectedTitle = new MutableLiveData<>();
     private final MutableLiveData <Integer> selectedId = new MutableLiveData<>();
 
-    public MainViewModel() {
+    @Inject MainViewModel() {
         selectedId.postValue(R.id.menu_rate);
     }
 

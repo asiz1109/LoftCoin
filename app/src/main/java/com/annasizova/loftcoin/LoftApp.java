@@ -9,6 +9,8 @@ import timber.log.Timber;
 
 public class LoftApp extends Application {
 
+    private AppComponent appComponent;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -16,6 +18,11 @@ public class LoftApp extends Application {
             StrictMode.enableDefaults();
             Timber.plant(new DebugTree());
         }
-        Timber.d("%s", this);
+
+        appComponent = DaggerAppComponent.factory().create(this);
+    }
+
+    AppComponent getAppComponent() {
+        return appComponent;
     }
 }
