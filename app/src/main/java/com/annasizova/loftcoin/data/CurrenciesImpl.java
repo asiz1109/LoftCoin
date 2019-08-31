@@ -1,29 +1,46 @@
 package com.annasizova.loftcoin.data;
 
-import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
+import android.content.Context;
+import android.content.SharedPreferences;
 
-import java.util.Currency;
-import java.util.Locale;
+import androidx.annotation.NonNull;
+
+import java.util.Arrays;
+import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Singleton
 class CurrenciesImpl implements Currencies {
 
-    private Provider<Locale> locales;
+    private static final String KEY_CODE = "code";
+    private final Context context;
 
     @Inject
-    CurrenciesImpl(Provider<Locale> locales) {
-        this.locales = locales;
+    CurrenciesImpl(Context context) {
+        this.context = context;
     }
 
     @NonNull
     @Override
-    public Pair<Currency, Locale> getCurrent() {
-        final Locale locale = locales.get();
-        return Pair.create(Currency.getInstance(locale), locale);
+    public List<Currency> getAvailableCurrencies() {
+        return Arrays.asList(Currency.values());
     }
+
+    @NonNull
+    @Override
+    public Currency getCurrent() {
+        return Currency.valueOf(getPrefs().getString(KEY_CODE, Currency.USD.code()));
+    }
+
+    @Override
+    public void setCurrent(@NonNull Currency currency) {
+        getPrefs().edit().putString(KEY_CODE, currency.code()).apply();
+    }
+
+    private SharedPreferences getPrefs() {
+        return context.getSharedPreferences("currencies", Context.MODE_PRIVATE);
+    }
+
 }

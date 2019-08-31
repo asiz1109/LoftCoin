@@ -5,5 +5,5 @@ import androidx.annotation.NonNull;
 public interface ImgUrlFormat {
 
     @NonNull
-    String format(int id);
+    String format(long id);
 }

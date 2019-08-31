@@ -1,9 +1,13 @@
 package com.annasizova.loftcoin.data;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 
+import com.annasizova.loftcoin.db.CoinEntity;
+import com.annasizova.loftcoin.db.LoftDB;
 import com.annasizova.loftcoin.util.Consumer;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,9 +22,12 @@ import retrofit2.Response;
 class CoinsRepositoryImpl implements CoinsRepository {
 
     private final CoinMarketCapApi cmcApi;
+    private final LoftDB db;
+
     @Inject
-    CoinsRepositoryImpl(CoinMarketCapApi api) {
+    CoinsRepositoryImpl(CoinMarketCapApi api, LoftDB db) {
         cmcApi = api;
+        this.db = db;
     }
 
     @Override
@@ -41,5 +48,29 @@ class CoinsRepositoryImpl implements CoinsRepository {
                 onError.apply(t);
             }
         });
+    }
+
+    @Override
+    public LiveData<List<CoinEntity>> listings() {
+        return db.coins().fetchAll();
+    }
+
+    @Override
+    public void refresh(@NonNull String convert, @NonNull Runnable onSuccess, @NonNull Consumer<Throwable> onError) {
+        listings(convert, coins -> {
+            final List<CoinEntity> entities = new ArrayList<>();
+            for (final Coin coin : coins) {
+                double price = 0d;
+                double change24 = 0d;
+                final Quote quote = coin.getQuotes().get(convert);
+                if (quote != null) {
+                    price = quote.getPrice();
+                    change24 = quote.getChange24h();
+                }
+                entities.add(CoinEntity.create(coin.getId(), coin.getSymbol(), price, change24));
+            }
+            db.coins().insertAll(entities);
+            onSuccess.run();
+        }, onError);
     }
 }

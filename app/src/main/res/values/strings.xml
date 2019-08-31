@@ -17,4 +17,9 @@
     <string name="add">Добавить</string>
     <string name="choose_currency">Выбор валюты</string>
 
+    <string name="dollar">Доллар</string>
+    <string name="euro">Евро</string>
+    <string name="ruble">Рубль</string>
+
+
 </resources>

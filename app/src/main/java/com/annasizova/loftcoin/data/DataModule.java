@@ -2,6 +2,8 @@ package com.annasizova.loftcoin.data;
 
 import com.annasizova.loftcoin.BuildConfig;
 
+import java.util.concurrent.Executors;
+
 import javax.inject.Singleton;
 
 import dagger.Binds;
@@ -36,6 +38,7 @@ public interface DataModule {
                 .client(httpClient)
                 .baseUrl(BuildConfig.CMC_API_ENDPOINT)
                 .addConverterFactory(GsonConverterFactory.create())
+                .callbackExecutor(Executors.newFixedThreadPool(4))
                 .build();
         return retrofit.create(CoinMarketCapApi.class);
     }

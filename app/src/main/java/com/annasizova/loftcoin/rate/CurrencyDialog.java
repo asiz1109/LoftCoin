@@ -13,6 +13,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.annasizova.loftcoin.R;
 
@@ -22,6 +24,7 @@ public class CurrencyDialog extends DialogFragment {
 
     static final String TAG = "CurrencyDialog";
     @Inject ViewModelProvider.Factory vmFactory;
+    @Inject CurrenciesAdapter adapter;
     private RateViewModel rateViewModel;
 
     @Override
@@ -48,7 +51,22 @@ public class CurrencyDialog extends DialogFragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        final RecyclerView recyclerView = view.findViewById(R.id.currency_dialog_recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(adapter);
+        adapter.setOnItemClick(((currency, position) -> {
+            rateViewModel.updateCurrency(currency);
+            dismissAllowingStateLoss();
+        }));
+    }
+
+    @Override
+    public void onDestroyView() {
+        adapter.setOnItemClick(null);
+        super.onDestroyView();
     }
 }
+
