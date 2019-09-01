@@ -45,9 +45,6 @@ interface RateModule {
     }
 
     @Binds
-    Function<List<Coin>, List<CoinRate>> rateMapper(RateMapper impl);
-
-    @Binds
     @IntoMap
     @ClassKey(MainViewModel.class)
     ViewModel mainViewModel(MainViewModel impl);

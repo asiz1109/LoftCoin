@@ -19,7 +19,7 @@ public class ImgUrlFormatImpl implements ImgUrlFormat {
 
     @NonNull
     @Override
-    public String format(int id) {
+    public String format(long id) {
         return String.format(Locale.US, "%scoins/64x64/%d.png", BuildConfig.CMC_IMG_ENDPOINT, id);
     }
 }
