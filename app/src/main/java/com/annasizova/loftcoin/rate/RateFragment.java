@@ -24,6 +24,7 @@ import com.google.android.material.snackbar.Snackbar;
 import javax.inject.Inject;
 
 import dagger.Lazy;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class RateFragment extends Fragment {
 
@@ -32,6 +33,7 @@ public class RateFragment extends Fragment {
     private RecyclerView recyclerView;
     private RateViewModel rateViewModel;
     private MainViewModel mainViewModel;
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,10 +64,16 @@ public class RateFragment extends Fragment {
         final SwipeRefreshLayout refreshLayout = view.findViewById(R.id.rate_refresh);
         refreshLayout.setOnRefreshListener(rateViewModel::refresh);
 
-        rateViewModel.error().observe(this, error ->
-                Snackbar.make(view, error.getMessage(), Snackbar.LENGTH_SHORT).show());
-        rateViewModel.dataSet().observe(this, rateAdapter::submitList);
-        rateViewModel.loading().observe(this, refreshLayout::setRefreshing);
+        disposable.add(rateViewModel.uiState().subscribe(state -> {
+            refreshLayout.setRefreshing(state.isRefreshing());
+            if(!state.rates().isEmpty()) {
+                rateAdapter.submitList(state.rates());
+            }
+            final String errorMessage = state.error();
+            if(errorMessage != null) {
+                Snackbar.make(view, errorMessage, Snackbar.LENGTH_SHORT).show();
+            }
+        }));
     }
 
     @Override
@@ -94,5 +102,6 @@ public class RateFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         recyclerView.swapAdapter(null, false);
+        disposable.clear();
     }
 }

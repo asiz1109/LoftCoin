@@ -8,9 +8,7 @@ import com.annasizova.loftcoin.vm.ViewModelModule;
 import dagger.BindsInstance;
 import dagger.Component;
 
-@Component (modules = {
-        RateModule.class, ViewModelModule.class, UtilModule.class
-})
+@Component (modules = {RateModule.class, ViewModelModule.class, UtilModule.class})
 interface RateComponent {
 
     void inject(RateFragment rateFragment);

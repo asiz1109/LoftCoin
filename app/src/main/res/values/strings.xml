@@ -16,10 +16,12 @@
 
     <string name="add">Добавить</string>
     <string name="choose_currency">Выбор валюты</string>
+    <string name="sort">Сортировать</string>
 
     <string name="dollar">Доллар</string>
     <string name="euro">Евро</string>
     <string name="ruble">Рубль</string>
 
+    <string name="wallet_created">Кошелек был создан</string>
 
 </resources>

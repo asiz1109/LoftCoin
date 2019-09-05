@@ -8,6 +8,9 @@ import androidx.annotation.NonNull;
 import com.annasizova.loftcoin.data.CoinsRepository;
 import com.annasizova.loftcoin.data.Currencies;
 import com.annasizova.loftcoin.data.DataModule;
+import com.annasizova.loftcoin.data.WalletsRepository;
+import com.annasizova.loftcoin.rx.RxModule;
+import com.annasizova.loftcoin.rx.RxSchedulers;
 
 import java.util.Locale;
 
@@ -19,7 +22,7 @@ import dagger.Component;
 
 @Singleton
 @Component (modules = {
-    AppModule.class, DataModule.class
+    AppModule.class, DataModule.class, RxModule.class
 })
 public interface AppComponent {
 
@@ -36,7 +39,11 @@ public interface AppComponent {
 
     CoinsRepository coinsRepository();
 
+    WalletsRepository walletsRepository();
+
     Currencies currencies();
+
+    RxSchedulers schedulers();
 
     @Component.Factory
     interface Factory {
