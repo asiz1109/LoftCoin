@@ -1,76 +1,63 @@
 package com.annasizova.loftcoin.data;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
 
 import com.annasizova.loftcoin.db.CoinEntity;
 import com.annasizova.loftcoin.db.LoftDB;
-import com.annasizova.loftcoin.util.Consumer;
+import com.annasizova.loftcoin.rx.RxSchedulers;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.Observable;
 
 @Singleton
 class CoinsRepositoryImpl implements CoinsRepository {
 
-    private final CoinMarketCapApi cmcApi;
+    private final CoinMarketCapApi api;
     private final LoftDB db;
+    private final RxSchedulers schedulers;
 
     @Inject
-    CoinsRepositoryImpl(CoinMarketCapApi api, LoftDB db) {
-        cmcApi = api;
+    CoinsRepositoryImpl(CoinMarketCapApi api, LoftDB db, RxSchedulers schedulers) {
+        this.api = api;
         this.db = db;
+        this.schedulers = schedulers;
     }
 
+    @NonNull
     @Override
-    public void listings(@NonNull String convert, @NonNull Consumer<List<Coin>> onSuccess, @NonNull Consumer<Throwable> onError) {
-        cmcApi.listings(convert).enqueue(new Callback<Listings>() {
-            @Override
-            public void onResponse(Call<Listings> call, Response<Listings> response) {
-                final Listings listings = response.body();
-                if (listings != null && listings.data != null) {
-                    onSuccess.apply(Collections.unmodifiableList(listings.data));
-                } else {
-                    onSuccess.apply(Collections.emptyList());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Listings> call, Throwable t) {
-                onError.apply(t);
-            }
-        });
+    public Observable<List<CoinEntity>> listings(@NonNull String convert) {
+        return Observable.merge(
+                db.coins().fetchAll(),
+                api.listings(convert).map(this::fromListings).doOnNext(db.coins()::insertAll).skip(1).subscribeOn(schedulers.io())
+        );
     }
 
-    @Override
-    public LiveData<List<CoinEntity>> listings() {
-        return db.coins().fetchAll();
-    }
-
-    @Override
-    public void refresh(@NonNull String convert, @NonNull Runnable onSuccess, @NonNull Consumer<Throwable> onError) {
-        listings(convert, coins -> {
+    private List<CoinEntity> fromListings(Listings listings) {
+        if (listings != null && listings.data != null) {
             final List<CoinEntity> entities = new ArrayList<>();
-            for (final Coin coin : coins) {
+            for (final Coin coin : listings.data) {
                 double price = 0d;
                 double change24 = 0d;
-                final Quote quote = coin.getQuotes().get(convert);
-                if (quote != null) {
-                    price = quote.getPrice();
-                    change24 = quote.getChange24h();
+                final Iterator<Quote> quotes = coin.getQuotes().values().iterator();
+                if (quotes.hasNext()) {
+                    final Quote quote = quotes.next();
+                    if (quote != null) {
+                        price = quote.getPrice();
+                        change24 = quote.getChange24h();
+                    }
                 }
                 entities.add(CoinEntity.create(coin.getId(), coin.getSymbol(), price, change24));
             }
-            db.coins().insertAll(entities);
-            onSuccess.run();
-        }, onError);
+            return Collections.unmodifiableList(entities);
+        }
+        return Collections.emptyList();
     }
+
 }

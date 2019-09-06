@@ -33,6 +33,8 @@ interface AppModule {
     @Provides
     @Singleton
     static LoftDB loftDb(Context context) {
-        return Room.databaseBuilder(context, LoftDB.class, "loft").build();
+        return Room.databaseBuilder(context, LoftDB.class, "loft")
+                .fallbackToDestructiveMigration()
+                .build();
     }
 }

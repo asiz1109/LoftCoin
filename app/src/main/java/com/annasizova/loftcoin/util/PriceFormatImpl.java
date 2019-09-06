@@ -32,12 +32,16 @@ public class PriceFormatImpl implements PriceFormat {
     @NonNull
     @Override
     public String format(double value) {
+        return format(value, currencies.getCurrent().sign());
+    }
+
+    @Override
+    public String format(double value, String sign) {
         final NumberFormat format = NumberFormat.getCurrencyInstance(locale.get());
         final DecimalFormat decimalFormat = (DecimalFormat) format;
         final DecimalFormatSymbols symbols = decimalFormat.getDecimalFormatSymbols();
-        symbols.setCurrencySymbol(currencies.getCurrent().sign());
+        symbols.setCurrencySymbol(sign);
         decimalFormat.setDecimalFormatSymbols(symbols);
         return format.format(value);
     }
-
 }

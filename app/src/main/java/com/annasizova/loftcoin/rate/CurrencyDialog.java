@@ -12,11 +12,11 @@ import androidx.appcompat.app.AppCompatDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.annasizova.loftcoin.R;
+import com.annasizova.loftcoin.data.Currencies;
 
 import javax.inject.Inject;
 
@@ -25,7 +25,7 @@ public class CurrencyDialog extends DialogFragment {
     static final String TAG = "CurrencyDialog";
     @Inject ViewModelProvider.Factory vmFactory;
     @Inject CurrenciesAdapter adapter;
-    private RateViewModel rateViewModel;
+    @Inject Currencies currencies;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -33,7 +33,6 @@ public class CurrencyDialog extends DialogFragment {
 
         final Fragment parentFragment = requireParentFragment();
         DaggerRateComponent.builder().fragment(parentFragment).build().inject(this);
-        rateViewModel = ViewModelProviders.of(parentFragment,vmFactory).get(RateViewModel.class);
     }
 
     @NonNull
@@ -58,7 +57,7 @@ public class CurrencyDialog extends DialogFragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClick(((currency, position) -> {
-            rateViewModel.updateCurrency(currency);
+            currencies.setCurrent(currency);
             dismissAllowingStateLoss();
         }));
     }
