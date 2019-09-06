@@ -7,15 +7,17 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue
 @Entity (tableName = "coins")
-public abstract class CoinEntity implements StableId{
+public abstract class CoinEntity implements StableId<Long> {
 
     @PrimaryKey
     @AutoValue.CopyAnnotations
     @Override
-    public abstract long id();
+    public abstract Long id();
 
     public abstract String symbol();
+
     public abstract double price();
+
     public abstract double change24();
 
     public static CoinEntity create(long id, String symbol, double price, double change24) {

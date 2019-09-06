@@ -1,7 +1,6 @@
 package com.annasizova.loftcoin.data;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.annasizova.loftcoin.db.CoinEntity;
 import com.annasizova.loftcoin.db.LoftDB;
@@ -17,7 +16,6 @@ import com.google.firebase.firestore.Query;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
@@ -30,17 +28,15 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 
 @Singleton
-class WalletsRepositoryImpl implements WalletsRepository {
+class RxWalletsRepository implements WalletsRepository {
 
-    private final LoftDB db;
-    private final RxSchedulers schedulers;
+    private final LoftDB loftDb;
     private final FirebaseFirestore firestore;
     private final Executor ioExecutor;
 
     @Inject
-    WalletsRepositoryImpl(RxSchedulers schedulers, LoftDB db) {
-        this.schedulers = schedulers;
-        this.db = db;
+    RxWalletsRepository(RxSchedulers schedulers, LoftDB loftDb) {
+        this.loftDb = loftDb;
         firestore = FirebaseFirestore.getInstance();
         ioExecutor = schedulers.io()::scheduleDirect;
     }
@@ -48,82 +44,67 @@ class WalletsRepositoryImpl implements WalletsRepository {
     @NonNull
     @Override
     public Observable<List<Wallet>> wallets() {
-        return Observable.create(new FirestoreOnSubscribe(ioExecutor, firestore
-                .collection("wallets")
-                .orderBy("created", Query.Direction.ASCENDING)))
-                .flatMap(documents -> Observable
+        return Observable.create(new QueryOnSubscribe(ioExecutor, firestore
+                    .collection("wallets")
+                    .orderBy("created", Query.Direction.ASCENDING)))
+                .flatMapSingle(documents -> Observable
                         .fromIterable(documents)
-                        .flatMapSingle(document -> db.coins()
-                                .fetchCoin(document.getLong("coinId"))
-                                .map(coin -> createWallet(document, coin))
-                        )
-                        .toList().toObservable()
-                );
+                        .flatMapSingle(document -> loftDb.coins().fetchCoin(document.getLong("coinId"))
+                                .map(coin -> Wallet.create(document.getId(), document.getDouble("balance"), coin)))
+                        .toList());
     }
 
     @NonNull
     @Override
     public Observable<List<Transaction>> transactions(@NonNull Wallet wallet) {
-        return Observable.create(new FirestoreOnSubscribe(ioExecutor, firestore
-                .collection("wallets").document(wallet.id())
-                .collection("transactions")
-                .orderBy("timestamp", Query.Direction.DESCENDING)))
-                .flatMap(documents -> Observable.fromIterable(documents)
-                        .map(document -> createTransaction(document, wallet))
-                        .toList().toObservable()
-                );
+        return Observable.create(new QueryOnSubscribe(ioExecutor, firestore
+                        .collection("wallets")
+                        .document(wallet.id())
+                        .collection("transactions")
+                        .orderBy("timestamp", Query.Direction.DESCENDING)))
+                .flatMapSingle(documents -> Observable
+                        .fromIterable(documents)
+                        .map(document -> Transaction.create(document.getId(), document.getDouble("amount"), document.getDate("timestamp"), wallet))
+                        .toList());
     }
 
     @NonNull
     @Override
     public Single<CoinEntity> findNextCoin(@NonNull List<Long> exclude) {
-        return db.coins().findNextCoin(exclude);
+        return loftDb.coins().findNextCoin(exclude);
     }
 
     @NonNull
     @Override
     public Completable saveWallet(Wallet wallet) {
-        return Single.fromCallable(() -> {
+        return Completable.create(emitter -> {
             final Map<String, Object> data = new HashMap<>();
             data.put("balance", wallet.balance1());
             data.put("coinId", wallet.coin().id());
             data.put("symbol", wallet.coin().symbol());
             data.put("created", FieldValue.serverTimestamp());
-            return data;
-        }).flatMapCompletable(data -> Completable.create(emitter -> { firestore
-                    .collection("wallets").add(data)
-                    .addOnCompleteListener(ioExecutor, doc -> {
+            firestore.collection("wallets").add(data)
+                    .addOnSuccessListener(ioExecutor, doc -> {
                         if (!emitter.isDisposed()) {
                             emitter.onComplete();
                         }
                     })
-                    .addOnFailureListener(ioExecutor, emitter::tryOnError);}))
-                .subscribeOn(schedulers.io());
+                    .addOnFailureListener(ioExecutor, emitter::tryOnError);
+        });
     }
 
-    private Wallet createWallet(@Nullable DocumentSnapshot doc, @NonNull CoinEntity coin) {
-        Objects.requireNonNull(doc, "doc is null?!");
-        return Wallet.create(doc.getId(), doc.getDouble("balance"), coin);
-    }
+    private static class QueryOnSubscribe implements ObservableOnSubscribe<List<DocumentSnapshot>> {
 
-    private Transaction createTransaction(@Nullable DocumentSnapshot doc, @NonNull Wallet wallet) {
-        Objects.requireNonNull(doc, "doc is null?!");
-        return Transaction.create(doc.getId(), doc.getDouble("amount"), doc.getDate("timestamp"), wallet);
-    }
-
-    private static class FirestoreOnSubscribe implements
-            ObservableOnSubscribe<List<DocumentSnapshot>> {
-
-        private final Query query;
         private final Executor executor;
+        private final Query query;
 
-        FirestoreOnSubscribe(@NonNull Executor executor, @NonNull Query query) {
+        QueryOnSubscribe(Executor executor, Query query) {
             this.executor = executor;
             this.query = query;
         }
 
         @Override
-        public void subscribe(ObservableEmitter<List<DocumentSnapshot>> emitter) {
+        public void subscribe(ObservableEmitter<List<DocumentSnapshot>> emitter) throws Exception {
             final ListenerRegistration registration = query
                     .addSnapshotListener(executor, (snapshots, e) -> {
                         if (snapshots != null) {

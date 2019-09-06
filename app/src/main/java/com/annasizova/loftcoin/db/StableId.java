@@ -1,6 +1,6 @@
 package com.annasizova.loftcoin.db;
 
-public interface StableId {
+public interface StableId<T> {
 
-    long id();
+    T id();
 }

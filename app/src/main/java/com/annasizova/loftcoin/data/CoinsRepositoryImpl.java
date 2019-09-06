@@ -33,9 +33,9 @@ class CoinsRepositoryImpl implements CoinsRepository {
     @NonNull
     @Override
     public Observable<List<CoinEntity>> listings(@NonNull String convert) {
-        return Observable.merge(
-                db.coins().fetchAll(),
-                api.listings(convert).map(this::fromListings).doOnNext(db.coins()::insertAll).skip(1).subscribeOn(schedulers.io())
+        return Observable.concat(
+                api.listings(convert).map(this::fromListings).doOnNext(db.coins()::insertAll).skip(1).subscribeOn(schedulers.io()),
+                db.coins().fetchAll()
         );
     }
 
@@ -59,5 +59,4 @@ class CoinsRepositoryImpl implements CoinsRepository {
         }
         return Collections.emptyList();
     }
-
 }

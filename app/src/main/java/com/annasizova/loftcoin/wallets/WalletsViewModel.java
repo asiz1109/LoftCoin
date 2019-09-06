@@ -4,82 +4,74 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
 import com.annasizova.loftcoin.data.WalletsRepository;
-import com.annasizova.loftcoin.db.CoinEntity;
 import com.annasizova.loftcoin.db.Transaction;
 import com.annasizova.loftcoin.db.Wallet;
 import com.annasizova.loftcoin.rx.RxSchedulers;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.Subject;
 
 class WalletsViewModel extends ViewModel {
 
     private static final Random PRNG = new SecureRandom();
     private final WalletsRepository repository;
     private final RxSchedulers schedulers;
-    private final BehaviorSubject<Long> walletId = BehaviorSubject.create();
+    private final Observable<List<Wallet>> wallets;
+    private final Subject<Integer> walletPosition;
+    private final Observable<List<Transaction>> transactions;
 
     @Inject
     WalletsViewModel(WalletsRepository repository, RxSchedulers schedulers) {
         this.repository = repository;
         this.schedulers = schedulers;
+        wallets = repository.wallets()
+                .replay(1)
+                .autoConnect()
+                .subscribeOn(schedulers.io());
+        walletPosition = BehaviorSubject.createDefault(0);
+        transactions = wallets
+                .filter(wallets -> !wallets.isEmpty())
+                .switchMap(wallets -> walletPosition
+                        .observeOn(schedulers.io())
+                        .map(position -> Math.min(position, wallets.size() - 1))
+                        .map(wallets::get)
+                )
+                .distinctUntilChanged(Wallet::id)
+                .switchMap(repository::transactions)
+                .subscribeOn(schedulers.io());
     }
 
     @NonNull
     Completable createNextWallet() {
-        return repository.findNextCoin()
-                .map(this::createFakeWallet)
-                .flatMap(repository::saveWallet)
-                .map(this::generateFakeTransactions)
-                .flatMapCompletable(repository::saveTransactions)
+        return wallets.firstElement()
+                .flatMapSingle(wallets -> Observable.fromIterable(wallets).map(wallet -> wallet.coin().id()).toList())
+                .flatMap(repository::findNextCoin)
+                .map(coin -> Wallet.create(UUID.randomUUID().toString(), PRNG.nextDouble() * (1 + PRNG.nextInt(100)), coin))
+                .flatMapCompletable(repository::saveWallet)
                 .subscribeOn(schedulers.io())
                 .observeOn(schedulers.main());
     }
 
     @NonNull
-    Observable<List<Wallet.View>> wallets() {
-        return repository.wallets().doOnNext(wallets -> {
-                    final Long value = walletId.getValue();
-                    if (value == null && !wallets.isEmpty()) {
-                        walletId.onNext(wallets.get(0).id());
-                    }
-                })
-                .subscribeOn(schedulers.io())
-                .observeOn(schedulers.main());
+    Observable<List<Wallet>> wallets() {
+        return wallets.observeOn(schedulers.main());
     }
 
     @NonNull
-    Observable<List<Transaction.View>> transactions() {
-        return walletId.distinctUntilChanged()
-                .flatMap(repository::transactions)
-                .subscribeOn(schedulers.io())
-                .observeOn(schedulers.main());
+    Observable<List<Transaction>> transactions() {
+        return transactions.observeOn(schedulers.main());
     }
 
-    void submitWalletId(long id) {
-        walletId.onNext(id);
-    }
-
-    private Wallet createFakeWallet(CoinEntity coin) {
-        return Wallet.create(0, PRNG.nextDouble() * (1 + PRNG.nextInt(100)), coin.id());
-    }
-
-    private List<Transaction> generateFakeTransactions(long walletId) {
-        final int count = 1 + PRNG.nextInt(20);
-        final List<Transaction> transactions = new ArrayList<>(count);
-        final long now = System.currentTimeMillis();
-        for (int i = 0; i < count; ++i) {
-            transactions.add(Transaction.create(0, now - TimeUnit.HOURS.toMillis(12 + PRNG.nextInt(120)), PRNG.nextDouble() * (PRNG.nextInt(100) - 50), walletId));
-        }
-        return transactions;
+    void submitWalletPosition(int position) {
+        walletPosition.onNext(position);
     }
 }

@@ -35,8 +35,8 @@ public class WalletsFragment extends Fragment {
     @Inject TransactionsAdapter transactionsAdapter;
     private MainViewModel mainViewModel;
     private WalletsViewModel walletsViewModel;
-    private RecyclerView wallets;
-    private RecyclerView transactions;
+    private RecyclerView walletsRv;
+    private RecyclerView transactionsRv;
     private SnapHelper walletsSnapHelper;
     private RecyclerView.OnScrollListener onWalletsScroll;
 
@@ -68,39 +68,35 @@ public class WalletsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mainViewModel.submitTitle(getString(R.string.wallets));
 
-        wallets = view.findViewById(R.id.wallets);
-        wallets.setLayoutManager(new LinearLayoutManager(view.getContext(),
+        walletsRv = view.findViewById(R.id.wallets);
+        walletsRv.setLayoutManager(new LinearLayoutManager(view.getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
-        wallets.addItemDecoration(new PagerDecoration(view.getContext(), 16));
+        walletsRv.addItemDecoration(new PagerDecoration(view.getContext(), 16));
 
         walletsSnapHelper = new PagerSnapHelper();
-        walletsSnapHelper.attachToRecyclerView(wallets);
-        wallets.swapAdapter(walletsAdapter, false);
+        walletsSnapHelper.attachToRecyclerView(walletsRv);
+        walletsRv.swapAdapter(walletsAdapter, false);
 
         final View walletsCard = view.findViewById(R.id.wallet_image);
         disposable.add(walletsViewModel.wallets().subscribe(wallets -> {
             walletsCard.setVisibility(wallets.isEmpty() ? View.VISIBLE : View.GONE);
            walletsAdapter.submitList(wallets);
+           walletsRv.invalidateItemDecorations();
         }));
 
         onWalletsScroll = new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                if (RecyclerView.SCROLL_STATE_IDLE == newState) {
-                    final View snapView = walletsSnapHelper.findSnapView(recyclerView.getLayoutManager());
-                    if (snapView != null) {
-                        walletsViewModel.submitWalletId(recyclerView.getChildItemId(snapView));
-                    }
-                }
+                onWalletPositionChanged(recyclerView, newState);
             }
         };
 
-        wallets.addOnScrollListener(onWalletsScroll);
+        walletsRv.addOnScrollListener(onWalletsScroll);
 
-        transactions = view.findViewById(R.id.transactions);
-        transactions.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        transactions.setHasFixedSize(true);
-        transactions.swapAdapter(transactionsAdapter, false);
+        transactionsRv = view.findViewById(R.id.transactions);
+        transactionsRv.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        transactionsRv.setHasFixedSize(true);
+        transactionsRv.swapAdapter(transactionsAdapter, false);
 
         disposable.add(walletsViewModel.transactions()
                 .subscribe(transactionsAdapter::submitList));
@@ -132,10 +128,21 @@ public class WalletsFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
+        disposable.clear();
         walletsSnapHelper.attachToRecyclerView(null);
-        wallets.removeOnScrollListener(onWalletsScroll);
-        wallets.swapAdapter(null, false);
-        transactions.swapAdapter(null, false);
+        walletsRv.removeOnScrollListener(onWalletsScroll);
+        walletsRv.swapAdapter(null, false);
+        transactionsRv.swapAdapter(null, false);
         super.onDestroyView();
+    }
+
+    private void onWalletPositionChanged(@NonNull RecyclerView recyclerView, int newState) {
+        if (RecyclerView.SCROLL_STATE_IDLE == newState) {
+            final View snapView = walletsSnapHelper.findSnapView(recyclerView.getLayoutManager());
+            if (snapView != null) {
+                walletsViewModel.submitWalletPosition(
+                        recyclerView.getChildAdapterPosition(snapView));
+            }
+        }
     }
 }

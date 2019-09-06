@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import com.annasizova.loftcoin.R;
 import com.annasizova.loftcoin.converter.ConverterFragment;
+import com.annasizova.loftcoin.fcm.FcmChannel;
 import com.annasizova.loftcoin.rate.RateFragment;
 import com.annasizova.loftcoin.wallets.WalletsFragment;
 import com.annasizova.loftcoin.util.Supplier;
@@ -19,10 +20,15 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import io.reactivex.disposables.CompositeDisposable;
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity {
 
     @Inject MainNavigator mainNavigator;
     @Inject ViewModelProvider.Factory vmFactory;
+    private final CompositeDisposable disposable = new CompositeDisposable();
+    @Inject FcmChannel fcmChannel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
 
         mainViewModel.selectedId().observe(this, mainNavigator::navigateTo);
         mainViewModel.selectedId().observe(this, bottomNavigationView::setSelectedItemId);
+
+        disposable.add(fcmChannel.token().subscribe(token -> Timber.i(token)));
     }
 
 }

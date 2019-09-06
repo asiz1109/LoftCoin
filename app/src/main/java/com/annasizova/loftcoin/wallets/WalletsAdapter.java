@@ -23,7 +23,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-class WalletsAdapter extends ListAdapter<Wallet.View, WalletsAdapter.ViewHolder> {
+class WalletsAdapter extends ListAdapter<Wallet, WalletsAdapter.ViewHolder> {
 
     private LayoutInflater inflater;
     private ImgUrlFormat urlFormat;
@@ -39,7 +39,7 @@ class WalletsAdapter extends ListAdapter<Wallet.View, WalletsAdapter.ViewHolder>
 
     @Override
     public long getItemId(int position) {
-        return Objects.requireNonNull(getItem(position)).id();
+        return Objects.requireNonNull(getItem(position)).coin().id();
     }
 
     @NonNull
@@ -50,12 +50,12 @@ class WalletsAdapter extends ListAdapter<Wallet.View, WalletsAdapter.ViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final Wallet.View wallet = Objects.requireNonNull(getItem(position));
+        final Wallet wallet = Objects.requireNonNull(getItem(position));
 
-        Picasso.get().load(urlFormat.format(wallet.coinId())).into(holder.logo);
+        Picasso.get().load(urlFormat.format(wallet.coin().id())).into(holder.logo);
 
-        holder.symbol.setText(wallet.symbol());
-        holder.balance1.setText(priceFormat.format(wallet.balance1(), wallet.symbol()));
+        holder.symbol.setText(wallet.coin().symbol());
+        holder.balance1.setText(priceFormat.format(wallet.balance1(), wallet.coin().symbol()));
         holder.balance2.setText(priceFormat.format(wallet.balance2()));
     }
 
