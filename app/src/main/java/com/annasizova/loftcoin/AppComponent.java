@@ -9,6 +9,9 @@ import com.annasizova.loftcoin.data.CoinsRepository;
 import com.annasizova.loftcoin.data.Currencies;
 import com.annasizova.loftcoin.data.DataModule;
 import com.annasizova.loftcoin.data.WalletsRepository;
+import com.annasizova.loftcoin.fcm.FcmChannel;
+import com.annasizova.loftcoin.fcm.FcmModule;
+import com.annasizova.loftcoin.fcm.FcmService;
 import com.annasizova.loftcoin.rx.RxModule;
 import com.annasizova.loftcoin.rx.RxSchedulers;
 
@@ -21,9 +24,7 @@ import dagger.BindsInstance;
 import dagger.Component;
 
 @Singleton
-@Component (modules = {
-    AppModule.class, DataModule.class, RxModule.class
-})
+@Component (modules = {AppModule.class, DataModule.class, RxModule.class, FcmModule.class})
 public interface AppComponent {
 
     @NonNull
@@ -35,6 +36,8 @@ public interface AppComponent {
         throw new IllegalArgumentException("ApplicationContext should be an instance of LoftApp");
     }
 
+    void inject(FcmService service);
+
     Provider<Locale> locale();
 
     CoinsRepository coinsRepository();
@@ -44,6 +47,8 @@ public interface AppComponent {
     Currencies currencies();
 
     RxSchedulers schedulers();
+
+    FcmChannel fcmChannel();
 
     @Component.Factory
     interface Factory {

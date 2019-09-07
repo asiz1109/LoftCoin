@@ -12,4 +12,5 @@ public interface CoinsRepository {
 
     @NonNull
     Observable<List<CoinEntity>> listings(@NonNull String convert);
+
 }

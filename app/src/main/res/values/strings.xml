@@ -24,4 +24,7 @@
 
     <string name="wallet_created">Кошелек был создан</string>
 
+    <string name="fcm_default_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="fcm_default_channel_name">@string/app_name</string>
+
 </resources>

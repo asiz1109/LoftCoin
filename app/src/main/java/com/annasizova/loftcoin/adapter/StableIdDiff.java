@@ -1,14 +1,13 @@
 package com.annasizova.loftcoin.adapter;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.annasizova.loftcoin.db.StableId;
 
 import java.util.Objects;
 
-public class StableIdDiff<T extends StableId> extends DiffUtil.ItemCallback<T> {
+public class StableIdDiff<Id, T extends StableId<Id>> extends DiffUtil.ItemCallback<T> {
 
     @Override
     public boolean areItemsTheSame(@NonNull T oldItem, @NonNull T newItem) {
@@ -20,9 +19,4 @@ public class StableIdDiff<T extends StableId> extends DiffUtil.ItemCallback<T> {
         return Objects.equals(oldItem, newItem);
     }
 
-    @Nullable
-    @Override
-    public Object getChangePayload(@NonNull T oldItem, @NonNull T newItem) {
-        return newItem;
-    }
 }

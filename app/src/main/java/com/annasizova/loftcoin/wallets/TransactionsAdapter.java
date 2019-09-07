@@ -21,7 +21,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-class TransactionsAdapter extends ListAdapter<Transaction.View, TransactionsAdapter.ViewHolder> {
+class TransactionsAdapter extends ListAdapter<Transaction, TransactionsAdapter.ViewHolder> {
 
     private LayoutInflater inflater;
     private PriceFormat priceFormat;
@@ -30,12 +30,6 @@ class TransactionsAdapter extends ListAdapter<Transaction.View, TransactionsAdap
     TransactionsAdapter(PriceFormat priceFormat) {
         super(new StableIdDiff<>());
         this.priceFormat = priceFormat;
-        setHasStableIds(true);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return Objects.requireNonNull(getItem(position)).id();
     }
 
     @NonNull
@@ -46,9 +40,9 @@ class TransactionsAdapter extends ListAdapter<Transaction.View, TransactionsAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final Transaction.View transaction = Objects.requireNonNull(getItem(position));
+        final Transaction transaction = Objects.requireNonNull(getItem(position));
 
-        holder.amount1.setText(priceFormat.format(transaction.amount1(), transaction.symbol()));
+        holder.amount1.setText(priceFormat.format(transaction.amount1(), transaction.wallet().coin().symbol()));
         holder.amount2.setText(priceFormat.format(transaction.amount2()));
 
         final Resources res = holder.itemView.getResources();
@@ -63,7 +57,7 @@ class TransactionsAdapter extends ListAdapter<Transaction.View, TransactionsAdap
         holder.amount2.setTextColor(changeColor);
 
         holder.timestamp.setText(DateUtils.formatDateTime(
-                holder.itemView.getContext(), transaction.timestamp(), DateUtils.FORMAT_SHOW_YEAR));
+                holder.itemView.getContext(), transaction.timestamp().getTime(), DateUtils.FORMAT_SHOW_YEAR));
     }
 
     @Override
