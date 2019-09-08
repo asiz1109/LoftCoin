@@ -16,6 +16,9 @@ public interface CoinsDao {
     @Query("SELECT * FROM coins ORDER BY price DESC")
     Observable<List<CoinEntity>> fetchAll();
 
+    @Query("SELECT * FROM coins ORDER BY price DESC LIMIT :limit")
+    Observable<List<CoinEntity>> fetchCoins(int limit);
+
     @Query("SELECT * FROM coins WHERE id=:id")
     Single<CoinEntity> fetchCoin(Long id);
 

@@ -111,8 +111,7 @@ class WalletsRepositoryImpl implements WalletsRepository {
         return Transaction.create(doc.getId(), doc.getDouble("amount"), doc.getDate("timestamp"), wallet);
     }
 
-    private static class FirestoreOnSubscribe implements
-            ObservableOnSubscribe<List<DocumentSnapshot>> {
+    private static class FirestoreOnSubscribe implements ObservableOnSubscribe<List<DocumentSnapshot>> {
 
         private final Query query;
         private final Executor executor;

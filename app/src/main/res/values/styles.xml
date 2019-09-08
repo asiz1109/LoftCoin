@@ -35,6 +35,16 @@
         <item name="textAppearanceHeadline4">@style/TextAppearance.AppTheme.H4</item>"
     </style>
 
+    <style name="AppTheme.BottomSheet.Dialog" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="loftSurfaceColor">@color/dark_four</item>
+        <item name="textAppearanceHeadline1">@style/TextAppearance.AppTheme.H1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.AppTheme.H2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.AppTheme.H3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.AppTheme.H4</item>
+    </style>
+
     <style name="TextAppearance.AppTheme" parent="TextAppearance.AppCompat.Body1" />
 
     <style name="TextAppearance.AppTheme.H1">
@@ -70,6 +80,10 @@
     <declare-styleable name="AppTheme">
         <attr name="gradientButton" format="reference" />
         <attr name="walletCardBackground" format="color|reference" />
+    </declare-styleable>
+
+    <declare-styleable name="AppTheme.Dialog">
+        <attr name="loftSurfaceColor" format="reference" />
     </declare-styleable>
 
 </resources>

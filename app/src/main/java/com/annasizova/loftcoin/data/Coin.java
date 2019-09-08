@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Collections;
 import java.util.Map;
 
+@SuppressWarnings("WeakerAccess")
 public class Coin {
 
     @SerializedName("id")

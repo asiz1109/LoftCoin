@@ -52,5 +52,4 @@ class CurrenciesImpl implements Currencies {
             emitter.onNext(getCurrent());
         });
     }
-
 }

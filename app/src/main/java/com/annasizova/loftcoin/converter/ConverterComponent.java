@@ -1,4 +1,4 @@
-package com.annasizova.loftcoin.wallets;
+package com.annasizova.loftcoin.converter;
 
 import androidx.fragment.app.Fragment;
 
@@ -9,10 +9,12 @@ import com.annasizova.loftcoin.vm.ViewModelModule;
 import dagger.BindsInstance;
 import dagger.Component;
 
-@Component (modules = {FragmentModule.class, WalletsModule.class, ViewModelModule.class, UtilModule.class})
-interface WalletsComponent {
+@Component(modules = {FragmentModule.class, ConverterModule.class, ViewModelModule.class, UtilModule.class})
+interface ConverterComponent {
 
-    void inject(WalletsFragment fmt);
+    void inject(ConverterFragment fmt);
+
+    void inject(CoinsSheetDialog fmt);
 
     @Component.Builder
     interface Builder {
@@ -20,7 +22,7 @@ interface WalletsComponent {
         @BindsInstance
         Builder fragment(Fragment fmt);
 
-        WalletsComponent build();
+        ConverterComponent build();
 
     }
 }

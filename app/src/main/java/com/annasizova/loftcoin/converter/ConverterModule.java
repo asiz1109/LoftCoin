@@ -1,9 +1,9 @@
-package com.annasizova.loftcoin.wallets;
+package com.annasizova.loftcoin.converter;
 
 import androidx.lifecycle.ViewModel;
 
 import com.annasizova.loftcoin.AppComponent;
-import com.annasizova.loftcoin.data.WalletsRepository;
+import com.annasizova.loftcoin.data.CoinsRepository;
 import com.annasizova.loftcoin.main.MainViewModel;
 
 import dagger.Binds;
@@ -13,11 +13,11 @@ import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
 
 @Module
-interface WalletsModule {
+interface ConverterModule {
 
     @Provides
-    static WalletsRepository walletsRepository(AppComponent appComponent) {
-        return appComponent.walletsRepository();
+    static CoinsRepository coinsRepository(AppComponent appComponent) {
+        return appComponent.coinsRepository();
     }
 
     @Binds
@@ -27,6 +27,6 @@ interface WalletsModule {
 
     @Binds
     @IntoMap
-    @ClassKey(WalletsViewModel.class)
-    ViewModel ratesViewModel(WalletsViewModel impl);
+    @ClassKey(ConverterViewModel.class)
+    ViewModel converterViewModel(ConverterViewModel impl);
 }
