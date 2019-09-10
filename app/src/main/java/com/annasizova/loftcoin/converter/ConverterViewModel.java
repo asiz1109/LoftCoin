@@ -91,11 +91,11 @@ class ConverterViewModel extends ViewModel {
     }
 
     void changeFromValue(String text) {
-        fromValue.onNext(text);
+        fromValue.onNext(checkText(text));
     }
 
     void changeToValue(String text) {
-        toValue.onNext(text);
+        toValue.onNext(checkText(text));
     }
 
     @NonNull
@@ -116,5 +116,18 @@ class ConverterViewModel extends ViewModel {
                 return "";
             }
         });
+    }
+
+    String checkText (String text) {
+        if (text.startsWith(".")) {
+            return "0";
+        }
+        text = text.replace("\u00A0", "");
+        String newText = text;
+        int countDot = newText.length() - newText.replace(",", "").replace(".", "").length();
+        if (countDot > 1) {
+            return "0";
+        }
+        return text;
     }
 }

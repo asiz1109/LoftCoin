@@ -1,11 +1,14 @@
 package com.annasizova.loftcoin.converter;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,7 +60,45 @@ public class ConverterFragment extends Fragment {
         disposable.add(RxView.clicks(toCoin).subscribe(none -> CoinsSheetDialog.chooseToCoin(getChildFragmentManager())));
 
         final EditText from = view.findViewById(R.id.from);
+        from.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = viewModel.checkText(from.getText().toString());
+                if (text.equals("0")){
+                    Toast.makeText(getContext(), "Неправильный формат числа", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         final EditText to = view.findViewById(R.id.to);
+        to.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = viewModel.checkText(to.getText().toString());
+                if (text.equals("0")){
+                    Toast.makeText(getContext(), "Неправильный формат числа", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         disposable.add(RxTextView.textChanges(from).map(CharSequence::toString).subscribe(viewModel::changeFromValue));
         disposable.add(RxTextView.textChanges(to).map(CharSequence::toString).subscribe(viewModel::changeToValue));
@@ -70,4 +111,5 @@ public class ConverterFragment extends Fragment {
         disposable.clear();
         super.onDestroyView();
     }
+
 }

@@ -35,6 +35,7 @@ public class PriceFormatImpl implements PriceFormat {
     @Override
     public String format(double value, String sign) {
         final NumberFormat format = NumberFormat.getCurrencyInstance(locale.get());
+        format.setMaximumFractionDigits(5);
         final DecimalFormat decimalFormat = (DecimalFormat) format;
         final DecimalFormatSymbols symbols = decimalFormat.getDecimalFormatSymbols();
         symbols.setCurrencySymbol(sign);
