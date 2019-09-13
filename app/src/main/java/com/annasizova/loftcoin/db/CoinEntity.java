@@ -14,13 +14,15 @@ public abstract class CoinEntity implements StableId<Long> {
     @Override
     public abstract Long id();
 
+    public abstract String name();
+
     public abstract String symbol();
 
     public abstract double price();
 
     public abstract double change24();
 
-    public static CoinEntity create(long id, String symbol, double price, double change24) {
-        return new AutoValue_CoinEntity(id, symbol, price, change24);
+    public static CoinEntity create(long id, String name, String symbol, double price, double change24) {
+        return new AutoValue_CoinEntity(id, name, symbol, price, change24);
     }
 }

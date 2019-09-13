@@ -27,4 +27,6 @@
     <string name="fcm_default_channel_id" translatable="false">fcm_default_channel</string>
     <string name="fcm_default_channel_name">@string/app_name</string>
 
+    <string name="zero_decimal">0.00</string>
+
 </resources>

@@ -23,7 +23,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
 
-import dagger.Lazy;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class RateFragment extends Fragment {

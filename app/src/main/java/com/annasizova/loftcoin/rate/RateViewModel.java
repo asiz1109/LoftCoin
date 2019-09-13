@@ -10,10 +10,12 @@ import com.annasizova.loftcoin.rx.RxSchedulers;
 
 import javax.inject.Inject;
 
+import dagger.Reusable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 
+@Reusable
 public class RateViewModel extends ViewModel {
 
     private final CoinsRepository repository;

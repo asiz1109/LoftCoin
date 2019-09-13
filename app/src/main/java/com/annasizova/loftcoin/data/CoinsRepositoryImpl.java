@@ -6,9 +6,6 @@ import com.annasizova.loftcoin.db.CoinEntity;
 import com.annasizova.loftcoin.db.LoftDB;
 import com.annasizova.loftcoin.rx.RxSchedulers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -22,41 +19,37 @@ class CoinsRepositoryImpl implements CoinsRepository {
     private final CoinMarketCapApi api;
     private final LoftDB db;
     private final RxSchedulers schedulers;
+    private final CoinsMapper mapper;
+    private final Currencies currencies;
 
     @Inject
-    CoinsRepositoryImpl(CoinMarketCapApi api, LoftDB db, RxSchedulers schedulers) {
+    CoinsRepositoryImpl(CoinMarketCapApi api, LoftDB db, RxSchedulers schedulers, CoinsMapper mapper, Currencies currencies) {
         this.api = api;
         this.db = db;
         this.schedulers = schedulers;
+        this.mapper = mapper;
+        this.currencies = currencies;
     }
 
     @NonNull
     @Override
     public Observable<List<CoinEntity>> listings(@NonNull String convert) {
-        return Observable.concat(
-                api.listings(convert).map(this::fromListings).doOnNext(db.coins()::insertAll).skip(1).subscribeOn(schedulers.io()),
-                db.coins().fetchAll()
-        );
+        return api.listings(convert)
+                .map(mapper::apply)
+                .doOnNext(db.coins()::insertAll)
+                .switchMap(coins -> db.coins().fetchAll())
+                .onErrorResumeNext(e -> {
+                    return db.coins().fetchAll().flatMap(coins -> {
+                        if (!coins.isEmpty()) return Observable.just(coins);
+                        else return Observable.<List<CoinEntity>>error(e);
+                    });
+                })
+                .subscribeOn(schedulers.io());
     }
 
-    private List<CoinEntity> fromListings(Listings listings) {
-        if (listings != null && listings.data != null) {
-            final List<CoinEntity> entities = new ArrayList<>();
-            for (final Coin coin : listings.data) {
-                double price = 0d;
-                double change24 = 0d;
-                final Iterator<Quote> quotes = coin.getQuotes().values().iterator();
-                if (quotes.hasNext()) {
-                    final Quote quote = quotes.next();
-                    if (quote != null) {
-                        price = quote.getPrice();
-                        change24 = quote.getChange24h();
-                    }
-                }
-                entities.add(CoinEntity.create(coin.getId(), coin.getSymbol(), price, change24));
-            }
-            return Collections.unmodifiableList(entities);
-        }
-        return Collections.emptyList();
+    @NonNull
+    @Override
+    public Observable<List<CoinEntity>> top(int limit) {
+        return db.coins().fetchCoins(limit);
     }
 }

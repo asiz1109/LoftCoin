@@ -1,16 +1,13 @@
 package com.annasizova.loftcoin.util;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 
 import com.annasizova.loftcoin.data.Currencies;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-import java.util.Currency;
 import java.util.Locale;
-import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -20,7 +17,7 @@ import dagger.Reusable;
 @Reusable
 public class PriceFormatImpl implements PriceFormat {
 
-    private Currencies currencies;
+    private final Currencies currencies;
     private final Provider<Locale> locale;
 
     @Inject
@@ -38,10 +35,11 @@ public class PriceFormatImpl implements PriceFormat {
     @Override
     public String format(double value, String sign) {
         final NumberFormat format = NumberFormat.getCurrencyInstance(locale.get());
+        format.setMaximumFractionDigits(5);
         final DecimalFormat decimalFormat = (DecimalFormat) format;
         final DecimalFormatSymbols symbols = decimalFormat.getDecimalFormatSymbols();
         symbols.setCurrencySymbol(sign);
         decimalFormat.setDecimalFormatSymbols(symbols);
-        return format.format(value);
+        return format.format(value).replace('\u00A0', ' ').trim();
     }
 }

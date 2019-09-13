@@ -142,4 +142,5 @@ public class RateAdapter extends ListAdapter <CoinEntity, RateAdapter.ViewHolder
             image.setClipToOutline(true);
         }
     }
+
 }
